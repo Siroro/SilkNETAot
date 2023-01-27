@@ -1,46 +1,44 @@
-﻿using Silk.NET.Input;
+﻿using System.Drawing;
 using Silk.NET.Input.Glfw;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
 using Silk.NET.Windowing.Glfw;
-using System.Drawing;
 
-namespace SilkNETAot
+namespace SilkNETAot;
+
+internal class Program
 {
-    internal class Program
+    private static IWindow? _window;
+    private static GL? _gl;
+
+    private static uint _vao;
+    private static uint _vbo;
+    private static uint _ebo;
+
+    private static uint _program;
+
+
+    private static void Main(string[] args)
     {
-        private static IWindow? _window;
-        private static GL? _gl;
+        GlfwWindowing.RegisterPlatform();
+        GlfwInput.RegisterPlatform();
+        var options = WindowOptions.Default;
+        options.Size = new Vector2D<int>(800, 600);
+        options.Title = "1.2 - Drawing a Quad";
 
-        private static uint _vao;
-        private static uint _vbo;
-        private static uint _ebo;
+        _window = Window.Create(options);
 
-        private static uint _program;
+        _window.Load += OnLoad;
+        _window.Update += OnUpdate;
+        _window.Render += OnRender;
+        _window.Run();
+    }
 
-
-        static void Main(string[] args)
-        {
-            GlfwWindowing.RegisterPlatform();
-            GlfwInput.RegisterPlatform();
-            WindowOptions options = WindowOptions.Default;
-            options.Size = new Vector2D<int>(800, 600);
-            options.Title = "1.2 - Drawing a Quad";
-
-            _window = Window.Create(options);
-
-            _window.Load += OnLoad;
-            _window.Update += OnUpdate;
-            _window.Render += OnRender;
-            _window.Run();
-
-        }
-
-            private static unsafe void OnLoad()
+    private static unsafe void OnLoad()
     {
         _gl = _window.CreateOpenGL();
-        
+
         _gl.ClearColor(Color.CornflowerBlue);
 
         // Create the VAO.
@@ -50,10 +48,10 @@ namespace SilkNETAot
         // The quad vertices data.
         float[] vertices =
         {
-            0.5f,  0.5f, 0.0f,
+            0.5f, 0.5f, 0.0f,
             0.5f, -0.5f, 0.0f,
             -0.5f, -0.5f, 0.0f,
-            -0.5f,  0.5f, 0.0f
+            -0.5f, 0.5f, 0.0f
         };
 
         // Create the VBO.
@@ -62,7 +60,10 @@ namespace SilkNETAot
 
         // Upload the vertices data to the VBO.
         fixed (float* buf = vertices)
-            _gl.BufferData(BufferTargetARB.ArrayBuffer, (nuint) (vertices.Length * sizeof(float)), buf, BufferUsageARB.StaticDraw);
+        {
+            _gl.BufferData(BufferTargetARB.ArrayBuffer, (nuint)(vertices.Length * sizeof(float)), buf,
+                BufferUsageARB.StaticDraw);
+        }
 
         // The quad indices data.
         uint[] indices =
@@ -77,7 +78,10 @@ namespace SilkNETAot
 
         // Upload the indices data to the EBO.
         fixed (uint* buf = indices)
-            _gl.BufferData(BufferTargetARB.ElementArrayBuffer, (nuint) (indices.Length * sizeof(uint)), buf, BufferUsageARB.StaticDraw);
+        {
+            _gl.BufferData(BufferTargetARB.ElementArrayBuffer, (nuint)(indices.Length * sizeof(uint)), buf,
+                BufferUsageARB.StaticDraw);
+        }
 
         const string vertexCode = @"
 #version 330 core
@@ -99,22 +103,22 @@ void main()
     out_color = vec4(1.0, 0.5, 0.2, 1.0);
 }";
 
-        uint vertexShader = _gl.CreateShader(ShaderType.VertexShader);
+        var vertexShader = _gl.CreateShader(ShaderType.VertexShader);
         _gl.ShaderSource(vertexShader, vertexCode);
 
         _gl.CompileShader(vertexShader);
 
-        _gl.GetShader(vertexShader, ShaderParameterName.CompileStatus, out int vStatus);
-        if (vStatus != (int) GLEnum.True)
+        _gl.GetShader(vertexShader, ShaderParameterName.CompileStatus, out var vStatus);
+        if (vStatus != (int)GLEnum.True)
             throw new Exception("Vertex shader failed to compile: " + _gl.GetShaderInfoLog(vertexShader));
 
-        uint fragmentShader = _gl.CreateShader(ShaderType.FragmentShader);
+        var fragmentShader = _gl.CreateShader(ShaderType.FragmentShader);
         _gl.ShaderSource(fragmentShader, fragmentCode);
 
         _gl.CompileShader(fragmentShader);
 
-        _gl.GetShader(fragmentShader, ShaderParameterName.CompileStatus, out int fStatus);
-        if (fStatus != (int) GLEnum.True)
+        _gl.GetShader(fragmentShader, ShaderParameterName.CompileStatus, out var fStatus);
+        if (fStatus != (int)GLEnum.True)
             throw new Exception("Fragment shader failed to compile: " + _gl.GetShaderInfoLog(fragmentShader));
 
         _program = _gl.CreateProgram();
@@ -124,8 +128,8 @@ void main()
 
         _gl.LinkProgram(_program);
 
-        _gl.GetProgram(_program, ProgramPropertyARB.LinkStatus, out int lStatus);
-        if (lStatus != (int) GLEnum.True)
+        _gl.GetProgram(_program, ProgramPropertyARB.LinkStatus, out var lStatus);
+        if (lStatus != (int)GLEnum.True)
             throw new Exception("Program failed to link: " + _gl.GetProgramInfoLog(_program));
 
         _gl.DetachShader(_program, vertexShader);
@@ -135,23 +139,23 @@ void main()
 
         const uint positionLoc = 0;
         _gl.EnableVertexAttribArray(positionLoc);
-        _gl.VertexAttribPointer(positionLoc, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), (void*) 0);
+        _gl.VertexAttribPointer(positionLoc, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), (void*)0);
 
         _gl.BindVertexArray(0);
         _gl.BindBuffer(BufferTargetARB.ArrayBuffer, 0);
         _gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, 0);
     }
 
-    private static void OnUpdate(double dt) { }
-    
+    private static void OnUpdate(double dt)
+    {
+    }
+
     private static unsafe void OnRender(double dt)
     {
         _gl.Clear(ClearBufferMask.ColorBufferBit);
 
-	    _gl.BindVertexArray(_vao);
-	    _gl.UseProgram(_program);
-	    _gl.DrawElements(PrimitiveType.Triangles, 6, DrawElementsType.UnsignedInt, (void*) 0);
+        _gl.BindVertexArray(_vao);
+        _gl.UseProgram(_program);
+        _gl.DrawElements(PrimitiveType.Triangles, 6, DrawElementsType.UnsignedInt, (void*)0);
     }
-
-}
 }
