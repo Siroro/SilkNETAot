@@ -25,7 +25,7 @@ internal class Program
         GlfwInput.RegisterPlatform();
         var options = WindowOptions.Default;
         options.Size = new Vector2D<int>(800, 600);
-        options.Title = "1.2 - Drawing a Quad";
+        options.Title = "Silk.NET AOT";
 
         _window = Window.Create(options);
 
