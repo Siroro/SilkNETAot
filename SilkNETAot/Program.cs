@@ -156,7 +156,7 @@ internal class Program
 
     private static unsafe void OnRender(double dt)
     {
-        _gl.Clear(ClearBufferMask.ColorBufferBit);
+        _gl!.Clear(ClearBufferMask.ColorBufferBit);
 
         _gl.BindVertexArray(_vao);
         _gl.UseProgram(_program);
