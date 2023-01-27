@@ -12,13 +12,13 @@ On Windows, install Visual Studio 2022, including Desktop development with C++ w
 On Linux, install compiler toolchain and developer packages for libraries that .NET runtime depends on.
 
 
-##Ubuntu
+## Ubuntu
 
 
 `sudo apt-get install clang zlib1g-dev`
 
 
-##Alpine
+## Alpine
 
 
 `sudo apk add clang build-base zlib-dev`
